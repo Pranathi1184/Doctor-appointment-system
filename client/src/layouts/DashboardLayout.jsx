@@ -10,7 +10,7 @@ export default function DashboardLayout() {
       <Sidebar variant="offcanvas" />
       <div className="content">
         <Topbar />
-        <main className="container-fluid py-4">
+        <main className="container-fluid py-4 dashboard-surface">
           <Outlet />
         </main>
       </div>

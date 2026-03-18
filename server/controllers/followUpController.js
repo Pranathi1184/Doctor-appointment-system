@@ -57,3 +57,39 @@ export async function getFollowUpsByPatient(req, res) {
   return res.json({ followUps });
 }
 
+// GET /api/followups/me/reminders
+// Patient only: upcoming (next 7 days) + overdue follow-ups
+export async function getMyReminders(req, res) {
+  const patient = await getPatientForUser(req.user._id);
+  if (!patient) return res.status(400).json({ message: "Patient profile not found" });
+
+  const appointments = await Appointment.find({ patientId: patient._id }).select("_id");
+  const appointmentIds = appointments.map((a) => a._id);
+
+  const followUps = await FollowUp.find({ appointmentId: { $in: appointmentIds } })
+    .populate({
+      path: "appointmentId",
+      populate: {
+        path: "doctorId",
+        select: "specialization experience",
+        populate: { path: "userId", select: "name email" }
+      }
+    })
+    .sort({ recommendedDate: 1 });
+
+  const now = new Date();
+  const upcomingUntil = new Date(now);
+  upcomingUntil.setDate(upcomingUntil.getDate() + 7);
+
+  const overdue = [];
+  const upcoming = [];
+
+  followUps.forEach((f) => {
+    const d = new Date(f.recommendedDate);
+    if (d < now) overdue.push(f);
+    else if (d <= upcomingUntil) upcoming.push(f);
+  });
+
+  return res.json({ overdue, upcoming });
+}
+

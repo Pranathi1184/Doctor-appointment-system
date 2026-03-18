@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import api from "../services/api";
 import { saveAuth } from "../services/auth";
 import FormInput from "../components/FormInput";
+import { IconStethoscope } from "../components/Icons";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -46,6 +47,15 @@ export default function Login() {
 
   return (
     <form onSubmit={onSubmit}>
+      <div className="d-flex align-items-center gap-2 mb-3">
+        <span className="rounded-circle d-inline-flex align-items-center justify-content-center hospital-icon-badge">
+          <IconStethoscope size={18} />
+        </span>
+        <div>
+          <div className="fw-bold">Welcome back</div>
+          <div className="text-muted small">Login to access your dashboard</div>
+        </div>
+      </div>
       <FormInput
         label="Email"
         name="email"
@@ -71,7 +81,7 @@ export default function Login() {
       <button className="btn btn-primary w-100" type="submit" disabled={loading}>
         {loading ? "Signing in..." : "Login"}
       </button>
-      <div className="alert alert-light border mt-3 small mb-0">
+      <div className="alert alert-info border-0 mt-3 small mb-0">
         <div className="fw-semibold mb-1">Seeded demo credentials</div>
         <div>Admin: admin@demo.com / Admin@123</div>
         <div>Doctor: asha.rao@demo.com / Doctor@123</div>

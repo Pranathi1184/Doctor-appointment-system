@@ -5,6 +5,8 @@ import DataTable from "../../components/DataTable";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import api from "../../services/api";
 import { fmtDateTime } from "../../services/format";
+import Modal from "../../components/Modal";
+import { IconUsers } from "../../components/Icons";
 
 export default function DoctorAppointments() {
   const [loading, setLoading] = useState(true);
@@ -13,6 +15,7 @@ export default function DoctorAppointments() {
   const [selected, setSelected] = useState(null);
   const [mode, setMode] = useState(null); // note | rx | followup
   const [noteId, setNoteId] = useState(null);
+  const [patientModal, setPatientModal] = useState({ loading: false, data: null });
 
   const [noteForm, setNoteForm] = useState({ diagnosis: "", notes: "" });
   const [rxForm, setRxForm] = useState({ medicineName: "", dosage: "", duration: "", instructions: "" });
@@ -66,6 +69,18 @@ export default function DoctorAppointments() {
     setSelected(a);
     setMode("followup");
     setFuForm({ recommendedDate: "", notes: "" });
+  };
+
+  const viewPatient = async (a) => {
+    try {
+      setPatientModal({ loading: true, data: null });
+      const patientId = a.patientId?._id;
+      const { data } = await api.get(`/patients/${patientId}`);
+      setPatientModal({ loading: false, data: data.patient });
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to load patient profile");
+      setPatientModal({ loading: false, data: null });
+    }
   };
 
   const saveNote = async (e) => {
@@ -148,6 +163,17 @@ export default function DoctorAppointments() {
       className: "text-end",
       render: (r) => (
         <div className="d-flex justify-content-end gap-2 flex-wrap">
+          <button
+            className="btn btn-outline-dark btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#patientProfileModal"
+            onClick={() => viewPatient(r)}
+            disabled={saving}
+          >
+            <span className="d-inline-flex align-items-center gap-1">
+              <IconUsers size={16} /> Patient
+            </span>
+          </button>
           <button className="btn btn-outline-primary btn-sm" onClick={() => startNote(r)} disabled={saving}>
             Add Note
           </button>
@@ -282,6 +308,61 @@ export default function DoctorAppointments() {
           ) : null}
         </Card>
       </div>
+
+      <Modal
+        id="patientProfileModal"
+        title="Patient profile"
+        footer={
+          <button type="button" className="btn btn-light" data-bs-dismiss="modal">
+            Close
+          </button>
+        }
+      >
+        {patientModal.loading ? (
+          <LoadingSpinner />
+        ) : patientModal.data ? (
+          <div className="row g-3">
+            <div className="col-md-6">
+              <div className="text-muted small">Name</div>
+              <div className="fw-semibold">{patientModal.data.userId?.name}</div>
+            </div>
+            <div className="col-md-6">
+              <div className="text-muted small">Email</div>
+              <div className="fw-semibold">{patientModal.data.userId?.email}</div>
+            </div>
+            <div className="col-md-4">
+              <div className="text-muted small">Age</div>
+              <div className="fw-semibold">{patientModal.data.age}</div>
+            </div>
+            <div className="col-md-4">
+              <div className="text-muted small">Gender</div>
+              <div className="fw-semibold">{patientModal.data.gender}</div>
+            </div>
+            <div className="col-md-4">
+              <div className="text-muted small">Contact</div>
+              <div className="fw-semibold">{patientModal.data.contact}</div>
+            </div>
+            <div className="col-md-4">
+              <div className="text-muted small">Blood group</div>
+              <div className="fw-semibold">{patientModal.data.medicalDetails?.bloodGroup || "-"}</div>
+            </div>
+            <div className="col-md-8">
+              <div className="text-muted small">Allergies</div>
+              <div className="fw-semibold">{patientModal.data.medicalDetails?.allergies || "-"}</div>
+            </div>
+            <div className="col-12">
+              <div className="text-muted small">Conditions</div>
+              <div className="fw-semibold">{patientModal.data.medicalDetails?.conditions || "-"}</div>
+            </div>
+            <div className="col-12">
+              <div className="text-muted small">Medical notes</div>
+              <div className="text-muted">{patientModal.data.medicalDetails?.notes || "-"}</div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-muted">No data.</div>
+        )}
+      </Modal>
     </div>
   );
 }

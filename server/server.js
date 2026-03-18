@@ -10,6 +10,8 @@ import noteRoutes from "./routes/noteRoutes.js";
 import prescriptionRoutes from "./routes/prescriptionRoutes.js";
 import followUpRoutes from "./routes/followUpRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import doctorBlockRoutes from "./routes/doctorBlockRoutes.js";
+import patientRoutes from "./routes/patientRoutes.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 
 dotenv.config();
@@ -34,6 +36,8 @@ app.use("/api/notes", noteRoutes);
 app.use("/api/prescriptions", prescriptionRoutes);
 app.use("/api/followups", followUpRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/doctor/blocks", doctorBlockRoutes);
+app.use("/api/patients", patientRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

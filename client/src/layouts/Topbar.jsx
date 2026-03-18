@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { getUser, logout } from "../services/auth";
+import { IconStethoscope } from "../components/Icons";
 
 export default function Topbar() {
   const user = getUser();
@@ -12,7 +13,7 @@ export default function Topbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg bg-white border-bottom">
+    <nav className="navbar navbar-expand-lg hospital-topbar border-bottom">
       <div className="container-fluid">
         <button
           className="btn btn-outline-secondary d-lg-none"
@@ -23,12 +24,15 @@ export default function Topbar() {
         >
           Menu
         </button>
-        <span className="navbar-brand fw-semibold ms-2">Doctor Appointment System</span>
+        <span className="navbar-brand fw-bold ms-2 d-flex align-items-center gap-2 text-white">
+          <IconStethoscope size={18} />
+          CarePoint Clinic
+        </span>
         <div className="ms-auto d-flex align-items-center gap-2">
           <span className="badge text-bg-light border">
             {user?.name} ({user?.role})
           </span>
-          <button className="btn btn-outline-danger btn-sm" onClick={onLogout}>
+          <button className="btn btn-light btn-sm" onClick={onLogout}>
             Logout
           </button>
         </div>

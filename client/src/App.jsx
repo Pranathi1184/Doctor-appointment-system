@@ -7,6 +7,7 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import RoleRoute from "./components/RoleRoute";
 
 import HomeRedirect from "./pages/HomeRedirect";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Unauthorized from "./pages/Unauthorized";
@@ -17,9 +18,11 @@ import DoctorList from "./pages/patient/DoctorList";
 import BookAppointment from "./pages/patient/BookAppointment";
 import MyAppointments from "./pages/patient/MyAppointments";
 import Prescriptions from "./pages/patient/Prescriptions";
+import PatientProfile from "./pages/patient/PatientProfile";
 
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import DoctorAppointments from "./pages/doctor/Appointments";
+import DoctorBlocks from "./pages/doctor/DoctorBlocks";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageDoctors from "./pages/admin/ManageDoctors";
@@ -31,6 +34,7 @@ export default function App() {
     <>
       <Routes>
         <Route path="/" element={<HomeRedirect />} />
+        <Route path="/landing" element={<Landing />} />
 
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
@@ -48,12 +52,14 @@ export default function App() {
               <Route path="/patient/book" element={<BookAppointment />} />
               <Route path="/patient/appointments" element={<MyAppointments />} />
               <Route path="/patient/prescriptions" element={<Prescriptions />} />
+              <Route path="/patient/profile" element={<PatientProfile />} />
             </Route>
 
             {/* Doctor */}
             <Route element={<RoleRoute roles={["doctor"]} />}>
               <Route path="/doctor" element={<DoctorDashboard />} />
               <Route path="/doctor/appointments" element={<DoctorAppointments />} />
+              <Route path="/doctor/blocks" element={<DoctorBlocks />} />
             </Route>
 
             {/* Admin */}

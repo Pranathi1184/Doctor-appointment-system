@@ -1,9 +1,80 @@
 :root {
   --sidebar-width: 260px;
+  --hospital-blue: #0ea5e9;
+  --hospital-teal: #14b8a6;
+  --hospital-ink: #0b1324;
 }
 
 .app-shell {
   min-height: 100vh;
+}
+
+.hospital-bg {
+  background: radial-gradient(1200px 600px at 20% 10%, rgba(14, 165, 233, 0.25), transparent 55%),
+    radial-gradient(900px 500px at 90% 20%, rgba(20, 184, 166, 0.25), transparent 55%),
+    linear-gradient(180deg, #f8fafc, #eef2ff);
+}
+
+.hospital-topbar {
+  background: linear-gradient(90deg, var(--hospital-blue), var(--hospital-teal));
+}
+
+.text-hospital {
+  color: var(--hospital-ink);
+}
+
+.sidebar .list-group-item.active {
+  background: linear-gradient(90deg, rgba(14, 165, 233, 0.18), rgba(20, 184, 166, 0.18));
+  color: var(--hospital-ink);
+  font-weight: 600;
+}
+
+.sidebar .list-group-item {
+  color: #334155;
+}
+
+.sidebar .list-group-item:hover {
+  background: rgba(14, 165, 233, 0.08);
+}
+
+.hospital-icon-badge {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(90deg, rgba(14, 165, 233, 0.18), rgba(20, 184, 166, 0.18));
+  color: var(--hospital-ink);
+  border: 1px solid rgba(2, 6, 23, 0.08);
+}
+
+.hospital-card-accent-teal {
+  position: relative;
+}
+.hospital-card-accent-teal::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, rgba(20, 184, 166, 1), rgba(14, 165, 233, 1));
+}
+
+.hospital-card-accent-blue {
+  position: relative;
+}
+.hospital-card-accent-blue::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, rgba(14, 165, 233, 1), rgba(99, 102, 241, 1));
+}
+
+.dashboard-surface {
+  background: radial-gradient(900px 500px at 20% 0%, rgba(14, 165, 233, 0.10), transparent 60%),
+    radial-gradient(800px 400px at 95% 10%, rgba(20, 184, 166, 0.10), transparent 60%);
+  min-height: calc(100vh - 56px);
 }
 
 .sidebar {

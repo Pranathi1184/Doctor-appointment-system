@@ -74,11 +74,41 @@ async function seed() {
   ]);
 
   const patients = await Patient.create([
-    { userId: patientUsers[0]._id, age: 29, gender: "female", contact: "9999990001" },
-    { userId: patientUsers[1]._id, age: 34, gender: "male", contact: "9999990002" },
-    { userId: patientUsers[2]._id, age: 26, gender: "female", contact: "9999990003" },
-    { userId: patientUsers[3]._id, age: 41, gender: "male", contact: "9999990004" },
-    { userId: patientUsers[4]._id, age: 31, gender: "female", contact: "9999990005" }
+    {
+      userId: patientUsers[0]._id,
+      age: 29,
+      gender: "female",
+      contact: "9999990001",
+      medicalDetails: { bloodGroup: "O+", allergies: "Dust", conditions: "None", notes: "Prefers morning appointments." }
+    },
+    {
+      userId: patientUsers[1]._id,
+      age: 34,
+      gender: "male",
+      contact: "9999990002",
+      medicalDetails: { bloodGroup: "A+", allergies: "Penicillin", conditions: "Hypertension", notes: "BP monitoring ongoing." }
+    },
+    {
+      userId: patientUsers[2]._id,
+      age: 26,
+      gender: "female",
+      contact: "9999990003",
+      medicalDetails: { bloodGroup: "B+", allergies: "Pollen", conditions: "Eczema", notes: "Skin flare-ups in summer." }
+    },
+    {
+      userId: patientUsers[3]._id,
+      age: 41,
+      gender: "male",
+      contact: "9999990004",
+      medicalDetails: { bloodGroup: "AB+", allergies: "None", conditions: "Diabetes", notes: "Diet and exercise plan." }
+    },
+    {
+      userId: patientUsers[4]._id,
+      age: 31,
+      gender: "female",
+      contact: "9999990005",
+      medicalDetails: { bloodGroup: "O-", allergies: "Seafood", conditions: "Asthma", notes: "Carries inhaler." }
+    }
   ]);
 
   const appointments = await Appointment.create([
