@@ -1,0 +1,22 @@
+:root {
+  --sidebar-width: 260px;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+}
+
+.content {
+  margin-left: var(--sidebar-width);
+}
+
+@media (max-width: 991.98px) {
+  .content {
+    margin-left: 0;
+  }
+}
+
