@@ -1,120 +1,208 @@
-# Doctor Appointment & Consultation Management System (MERN)
+# Doctor Appointment & Consultation Management System
 
-Simple, production-ready MERN project with **Admin / Doctor / Patient** roles.
+A MERN stack web application for managing doctor appointments, consultations, prescriptions, and follow-up recommendations.
+
+---
+
+## Description
+
+This system allows patients to search for doctors, book appointments, and access consultation details. Doctors can manage appointments, add consultation notes, issue prescriptions, and recommend follow-ups. Admins manage users and monitor the system.
+
+---
 
 ## Features
 
-- **Auth**: JWT login/register, bcrypt password hashing
-- **Patient**: search doctors, book appointments, view appointments, consultation notes, prescriptions, follow-ups
-- **Doctor**: view appointments, add consultation notes (diagnosis), add prescriptions, add follow-ups
-- **Admin**: manage doctors/users, view all appointments
-- **UI**: Bootstrap dashboard layout, sidebar, tables, forms, toast notifications
+### Authentication
+- User registration and login
+- JWT-based authentication
+- Password hashing using bcrypt
+- Role-based access control
 
-## Folder structure
+### Patient
+- Search and filter doctors
+- Book appointments
+- View appointment history
+- View consultation notes
+- View prescriptions
+- View follow-up recommendations
 
-```
-project/
-  server/
-    config/
-    controllers/
-    middleware/
-    models/
-    routes/
-    seed/
-    server.js
-  client/
-    src/
-      components/
-      layouts/
-      pages/
-      services/
-      App.jsx
-      main.jsx
-```
+### Doctor
+- View appointments
+- Add consultation notes
+- Create prescriptions
+- Recommend follow-ups
+- Manage availability slots
 
-## Environment variables
+### Admin
+- Manage doctors
+- Manage users
+- View all appointments
 
-### Backend (`server/.env`)
+---
 
-Create `server/.env` from `server/.env.example`:
+## Tech Stack
 
-```
-PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/doctor_appointments
-JWT_SECRET=replace_with_a_long_random_secret
-CLIENT_URL=http://localhost:3000
-```
+### Frontend
+- React.js
+- Bootstrap
+- React Router
+- Axios
+- React Toastify
 
-### Frontend (`client/.env`)
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT
+- bcryptjs
 
-Create `client/.env` from `client/.env.example`:
+---
 
-```
-VITE_API_URL=http://localhost:5000/api
-```
+## Project Structure
 
-## Install & run locally
+### Client
 
-From the project root:
+client/
+  src/
+    components/
+    pages/
+    layouts/
+    services/
 
-```bash
-npm install
-npm run install:all
-```
+### Server
 
-1) Seed the database (adds **1 admin, 3 doctors, 5 patients + sample appointments/notes/prescriptions/followups**):
+server/
+  config/
+  models/
+  controllers/
+  routes/
+  middleware/
+  seed/
 
-```bash
-npm run seed
-```
+---
 
-2) Start both backend + frontend:
+## Installation
 
-```bash
-npm run dev
-```
+### Prerequisites
+- Node.js (v16 or higher)
+- MongoDB
 
-- Frontend: `http://localhost:3000`
-- Backend health check: `http://localhost:5000/api/health`
+### Clone Repository
+git clone https://github.com/Pranathi1184/Doctor-appointment-system.git  
+cd Doctor-appointment-system  
 
-## Seeded demo credentials
+### Install Dependencies
+npm install  
+npm run install:all  
 
-- **Admin**: `admin@demo.com` / `Admin@123`
-- **Doctor**: `asha.rao@demo.com` / `Doctor@123`
-- **Patient**: `ananya@demo.com` / `Patient@123`
+### Environment Variables
 
-## API endpoints (core)
+Create `.env` in server:
 
-- **Auth**
-  - `POST /api/auth/register`
-  - `POST /api/auth/login`
-- **Doctors**
-  - `GET /api/doctors`
-  - `GET /api/doctors/:id`
-- **Appointments**
-  - `POST /api/appointments`
-  - `GET /api/appointments/patient`
-  - `GET /api/appointments/doctor`
-- **Notes**
-  - `POST /api/notes`
-  - `GET /api/notes/:appointmentId`
-- **Prescriptions**
-  - `POST /api/prescriptions`
-  - `GET /api/prescriptions/:patientId`
-- **FollowUps**
-  - `POST /api/followups`
-  - `GET /api/followups/:patientId`
+PORT=5001  
+MONGO_URI=mongodb://127.0.0.1:27017/doctor_appointments  
+JWT_SECRET=your_secret_key_here  
+JWT_EXPIRE=7d  
+CLIENT_URL=http://localhost:3001  
 
-Additional helper:
-- `GET /api/auth/me` (returns profile ids for the logged-in user)
-- Admin:
-  - `GET /api/admin/users`
-  - `DELETE /api/admin/users/:id`
-  - `GET /api/admin/doctors`
-  - `POST /api/admin/doctors`
-  - `GET /api/admin/appointments`
+Create `.env` in client:
 
+VITE_API_URL=http://localhost:5001/api  
 
+### Seed Database
+npm run seed  
 
+### Run Application
+npm run dev  
 
+Frontend: http://localhost:3001  
+Backend: http://localhost:5001  
 
+---
+
+## API Endpoints
+
+### Auth
+POST /api/auth/register  
+POST /api/auth/login  
+GET /api/auth/me  
+
+### Doctors
+GET /api/doctors  
+GET /api/doctors/:id  
+
+### Appointments
+POST /api/appointments  
+GET /api/appointments/patient  
+GET /api/appointments/doctor  
+
+### Notes
+POST /api/notes  
+GET /api/notes/:appointmentId  
+
+### Prescriptions
+POST /api/prescriptions  
+GET /api/prescriptions/:patientId  
+
+### Follow-ups
+POST /api/followups  
+GET /api/followups/:patientId  
+
+---
+
+## Demo Credentials
+
+Admin  
+Email: admin@demo.com  
+Password: Admin@123  
+
+Doctor  
+Email: doctor1@demo.com  
+Password: Doctor@123  
+
+Patient  
+Email: patient1@demo.com  
+Password: Patient@123  
+
+---
+
+## Database Collections
+
+- Users  
+- Doctors  
+- Patients  
+- Appointments  
+- ConsultationNotes  
+- Prescriptions  
+- FollowUps  
+
+---
+
+## Features Implemented
+
+- Authentication with JWT  
+- Role-based access control  
+- Appointment booking system  
+- Consultation notes and prescriptions  
+- Follow-up recommendations  
+- Admin management system  
+- Responsive UI  
+
+---
+
+## Future Improvements
+
+- Video consultation  
+- Notifications (Email/SMS)  
+- Payment integration  
+- Medical history tracking  
+
+---
+
+## Author
+
+Pranathi  
+GitHub: https://github.com/Pranathi1184  
+
+---

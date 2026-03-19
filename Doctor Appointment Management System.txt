@@ -1,115 +1,149 @@
 ﻿Doctor Appointment & Consultation Management System
 Software Requirement & Design Document
-________________
 
+---
 
 1. Project Overview
+
 The Doctor Appointment & Consultation Management System is a web-based application that enables patients to register, search for doctors, book appointments, and receive consultation details and prescriptions online.
+
 The system simplifies the healthcare consultation process by allowing doctors to record patient diagnosis, provide prescriptions, and recommend follow-up appointments.
+
 The platform supports three user roles:
 • Admin
 • Doctor
 • Patient
+
 The application is built using a MERN stack architecture:
 Frontend: React.js
 Backend: Node.js (Express.js)
 Database: MongoDB
-________________
 
+---
 
 2. Technology Stack
-Frontend
-Technology
-	Purpose
-	React.js
-	UI development
-	Bootstrap
-	UI styling
-	React Router
-	Navigation
-	Axios
-	API communication
-	React Toastify
-	Notifications
-	________________
 
+Frontend
+
+Technology – Purpose
+React.js – UI development
+Bootstrap – UI styling
+React Router – Navigation
+Axios – API communication
+React Toastify – Notifications
 
 Backend
-Technology
-	Purpose
-	Node.js
-	Server runtime
-	Express.js
-	REST API framework
-	JWT
-	Authentication
-	bcrypt
-	Password encryption
-	________________
 
+Technology – Purpose
+Node.js – Server runtime
+Express.js – REST API framework
+JWT – Authentication
+bcrypt – Password encryption
 
 Database
 MongoDB (NoSQL database)
-________________
 
+---
 
 3. System Architecture
+
+The system follows a three-tier architecture:
+
 React Frontend
 ↓
 Node.js REST API (Express)
 ↓
 MongoDB Database
-________________
 
+The frontend sends requests to backend APIs, which process data and interact with the database before sending responses back to the user interface.
+
+---
 
 4. User Roles
+
 Admin
+
 Admin manages system data and users.
+
 Admin can:
-• Manage doctors
-• Manage patients
+• Create and manage doctor accounts
+• Manage patient users
 • View all appointments
 • Monitor system activity
-________________
 
+---
 
 Doctor
-Doctors handle consultations and patient treatment.
-Doctors can:
-• View appointments
-• Add consultation notes
-• Provide prescriptions
-• Recommend follow-up appointments
-________________
 
+Doctors handle consultations and patient treatment.
+
+Doctors can:
+• View assigned appointments
+• Add consultation notes (diagnosis and observations)
+• Provide prescriptions with medicines and dosage
+• Recommend follow-up appointments
+
+---
 
 Patient
+
 Patients use the system to book consultations.
+
 Patients can:
 • Register and login
-• Search doctors
+• Search and view doctors
 • Book appointments
 • View consultation notes
 • View prescriptions
 • View follow-up recommendations
-________________
 
+---
 
 5. Core Modules
-1. Authentication Module
-2. Patient Registration Module
-3. Doctor Management Module
-4. Doctor Search Module
-5. Appointment Booking Module
-6. Consultation Notes Module
-7. Prescription Module
-8. Follow-Up Module
-9. Dashboard Module
-________________
 
+Authentication Module
+
+* User registration and login
+* JWT-based authentication
+
+Patient Registration Module
+
+* Patient profile creation and management
+
+Doctor Management Module
+
+* Admin creates and manages doctor profiles
+
+Doctor Search Module
+
+* Search and filter doctors by specialization
+
+Appointment Booking Module
+
+* Book and manage appointments
+
+Consultation Notes Module
+
+* Doctors record diagnosis and notes
+
+Prescription Module
+
+* Doctors provide medicine details and instructions
+
+Follow-Up Module
+
+* Doctors recommend next appointment
+
+Dashboard Module
+
+* Role-based dashboard views
+
+---
 
 6. System Workflow
+
 The system follows this workflow:
+
 Patient Registration
 ↓
 Doctor Search & Selection
@@ -118,103 +152,87 @@ Appointment Booking
 ↓
 Doctor Consultation
 ↓
-Doctor Notes (Diagnosis)
+Doctor adds Notes (Diagnosis & Observations)
 ↓
-Prescription Generation
+Doctor generates Prescription
 ↓
-Follow-Up Recommendation (Optional)
-________________
+Doctor recommends Follow-Up (Optional)
 
+---
 
 7. User Interface Design
+
 The application uses a simple and responsive dashboard layout.
+
 Layout Structure
 Navbar
 Sidebar
 Main Content
 Footer
-________________
-
 
 Key UI Components
-• Doctor cards
-• Appointment tables
-• Consultation form
-• Prescription form
+• Doctor cards with specialization and experience
+• Appointment tables with status
+• Consultation and prescription forms
 • Dashboard summary cards
-• Toast notifications
-________________
-
+• Toast notifications for actions
 
 Main Pages
+
 Patient
 • Register / Login
 • Doctor List
 • Book Appointment
 • My Appointments
 • Prescriptions
-________________
-
 
 Doctor
 • Dashboard
 • Appointment List
-• Add Notes
+• Add Consultation Notes
 • Add Prescription
-________________
-
 
 Admin
 • Manage Doctors
 • Manage Users
 • View Appointments
-________________
 
+---
 
 8. Backend API Design
+
 Base API:
 /api
-________________
-
 
 Authentication APIs
 POST /api/auth/register → Register user
 POST /api/auth/login → Login user
-________________
-
 
 Doctor APIs
 GET /api/doctors → Get all doctors
 GET /api/doctors/:id → Get doctor details
-________________
-
 
 Appointment APIs
 POST /api/appointments → Book appointment
 GET /api/appointments/patient → Patient appointments
 GET /api/appointments/doctor → Doctor appointments
-________________
-
 
 Consultation Notes APIs
 POST /api/notes → Add doctor notes
 GET /api/notes/:appointmentId → Get notes
-________________
-
 
 Prescription APIs
 POST /api/prescriptions → Add prescription
 GET /api/prescriptions/:patientId → Get prescriptions
-________________
-
 
 Follow-Up APIs
 POST /api/followup → Add follow-up
 GET /api/followup/:patientId → Get follow-ups
-________________
 
+---
 
 9. Database Design
+
 Users Collection
 user_id
 name
@@ -222,8 +240,6 @@ email
 password
 role
 created_at
-________________
-
 
 Doctors Collection
 doctor_id
@@ -231,8 +247,6 @@ user_id
 specialization
 experience
 available_slots
-________________
-
 
 Patients Collection
 patient_id
@@ -240,8 +254,6 @@ user_id
 age
 gender
 contact
-________________
-
 
 Appointments Collection
 appointment_id
@@ -249,8 +261,6 @@ patient_id
 doctor_id
 appointment_date
 status
-________________
-
 
 ConsultationNotes Collection
 note_id
@@ -260,8 +270,6 @@ patient_id
 diagnosis
 doctor_notes
 created_at
-________________
-
 
 Prescriptions Collection
 prescription_id
@@ -270,19 +278,19 @@ medicine_name
 dosage
 duration
 instructions
-________________
-
 
 FollowUps Collection
 followup_id
 appointment_id
 recommended_date
 notes
-________________
 
+---
 
 10. Folder Structure
+
 Frontend (React)
+
 client/
 src
 ├── components
@@ -290,10 +298,9 @@ src
 ├── layouts
 ├── services
 └── App.js
-________________
-
 
 Backend (Node.js)
+
 server/
 src
 ├── controllers
@@ -301,33 +308,42 @@ src
 ├── models
 ├── middleware
 └── server.js
-________________
 
+---
 
 11. Business Rules
-• Only registered users can book appointments
-• A doctor can only update their own appointments
-• Consultation notes must be added after appointment
-• Prescriptions must be linked to consultation
-• Follow-up is optional and doctor-controlled
-________________
 
+• Only registered users can book appointments
+• Doctors can only manage their own appointments
+• Consultation notes must be added after consultation
+• Prescriptions must be linked to consultation notes
+• Patients can only view their own data
+• Follow-up recommendations are optional and doctor-controlled
+
+---
 
 12. Future Enhancements
+
 • Video consultation
-• Email/SMS notifications
+• Email and SMS notifications
 • Online payment system
 • Medical history tracking
-________________
 
+---
 
 13. Definition of Done
+
 The project is complete when:
+
 ✔ User authentication implemented
-✔ Doctor search and booking working
+✔ Doctor search and appointment booking working
 ✔ Consultation notes system implemented
 ✔ Prescription module functional
 ✔ Follow-up system working
-✔ React frontend integrated with backend APIs
-✔ MongoDB database fully connected
+✔ Frontend and backend integrated
+✔ MongoDB database connected
+✔ Application UI is responsive and functional
 ✔ Project documentation completed
+
+---
+
