@@ -18,9 +18,72 @@ function daysFromNow(n) {
   return d;
 }
 
+const specializations = [
+  "Cardiologist",
+  "Dermatologist",
+  "General Physician",
+  "Orthopedic",
+  "Neurologist",
+  "Pediatrician",
+  "Psychiatrist",
+  "ENT Specialist",
+  "Ophthalmologist",
+  "Dentist"
+];
+
+const firstNames = [
+  "Asha", "Vikram", "Neha", "Rajesh", "Priya",
+  "Amit", "Sneha", "Arjun", "Deepa", "Sanjay"
+];
+
+const lastNames = [
+  "Rao", "Singh", "Iyer", "Patel", "Sharma",
+  "Kumar", "Gupta", "Nair", "Reddy", "Verma"
+];
+
+const patientFirstNames = [
+  "Ananya", "Rahul", "Sneha", "Arjun", "Priya",
+  "Rohan", "Divya", "Aditya", "Pooja", "Vikram",
+  "Nisha", "Harshit", "Isha", "Kabir", "Meera",
+  "Nikhil", "Shreya", "Varun", "Zara", "Jatin"
+];
+
+const patientLastNames = [
+  "Kumar", "Mehta", "Patel", "Nair", "Sharma",
+  "Gupta", "Singh", "Reddy", "Verma", "Desai",
+  "Iyer", "Bhat", "Malhotra", "Kapoor", "Chopra",
+  "Bhatt", "Ahuja", "Saxena", "Yadav", "Tiwari"
+];
+
+const allergies = [
+  "Dust", "Penicillin", "Pollen", "Seafood", "Nuts",
+  "Dairy", "Gluten", "Aspirin", "Latex", "None"
+];
+
+const conditions = [
+  "None", "Hypertension", "Eczema", "Diabetes", "Asthma",
+  "Migraine", "Arthritis", "Thyroid", "Anxiety", "Sleep Apnea"
+];
+
+const bloodGroups = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
+
+const availableSlots = [
+  ["Mon 10:00-12:00", "Wed 14:00-16:00", "Fri 10:00-12:00"],
+  ["Tue 10:00-12:00", "Thu 14:00-16:00"],
+  ["Mon 15:00-17:00", "Wed 10:00-12:00", "Sat 10:00-12:00"],
+  ["Tue 09:00-11:00", "Thu 15:00-17:00", "Sat 14:00-16:00"],
+  ["Mon 11:00-13:00", "Wed 16:00-18:00"],
+  ["Tue 13:00-15:00", "Fri 10:00-12:00", "Sun 10:00-12:00"],
+  ["Wed 09:00-11:00", "Fri 14:00-16:00"],
+  ["Thu 10:00-12:00", "Sat 11:00-13:00"],
+  ["Mon 13:00-15:00", "Fri 15:00-17:00"],
+  ["Tue 14:00-16:00", "Thu 11:00-13:00", "Sat 15:00-17:00"]
+];
+
 async function seed() {
   await connectDB();
 
+  // Clear all collections
   await Promise.all([
     FollowUp.deleteMany({}),
     Prescription.deleteMany({}),
@@ -31,158 +94,170 @@ async function seed() {
     User.deleteMany({})
   ]);
 
-  const admin = await User.create({
-    name: "System Admin",
-    email: "admin@demo.com",
-    password: "Admin@123",
-    role: "admin"
-  });
-
-  const doctorUsers = await User.create([
-    { name: "Dr. Asha Rao", email: "asha.rao@demo.com", password: "Doctor@123", role: "doctor" },
-    { name: "Dr. Vikram Singh", email: "vikram.singh@demo.com", password: "Doctor@123", role: "doctor" },
-    { name: "Dr. Neha Iyer", email: "neha.iyer@demo.com", password: "Doctor@123", role: "doctor" }
-  ]);
-
-  const doctors = await Doctor.create([
+  console.log("Creating 2 admin users...");
+  const admins = await User.create([
     {
-      userId: doctorUsers[0]._id,
-      specialization: "Cardiologist",
-      experience: 12,
-      availableSlots: ["Mon 10:00-12:00", "Wed 14:00-16:00", "Fri 10:00-12:00"]
+      name: "System Admin",
+      email: "admin@demo.com",
+      password: "Admin@123",
+      role: "admin"
     },
     {
-      userId: doctorUsers[1]._id,
-      specialization: "Dermatologist",
-      experience: 8,
-      availableSlots: ["Tue 10:00-12:00", "Thu 14:00-16:00"]
-    },
-    {
-      userId: doctorUsers[2]._id,
-      specialization: "General Physician",
-      experience: 6,
-      availableSlots: ["Mon 15:00-17:00", "Wed 10:00-12:00", "Sat 10:00-12:00"]
+      name: "Administrator",
+      email: "admin2@demo.com",
+      password: "Admin@123",
+      role: "admin"
     }
   ]);
 
-  const patientUsers = await User.create([
-    { name: "Ananya Kumar", email: "ananya@demo.com", password: "Patient@123", role: "patient" },
-    { name: "Rahul Mehta", email: "rahul@demo.com", password: "Patient@123", role: "patient" },
-    { name: "Sneha Patel", email: "sneha@demo.com", password: "Patient@123", role: "patient" },
-    { name: "Arjun Nair", email: "arjun@demo.com", password: "Patient@123", role: "patient" },
-    { name: "Priya Sharma", email: "priya@demo.com", password: "Patient@123", role: "patient" }
-  ]);
+  console.log("Creating 10 doctor users and profiles...");
+  const doctorUsers = await User.create(
+    Array.from({ length: 10 }, (_, i) => ({
+      name: `Dr. ${firstNames[i]} ${lastNames[i]}`,
+      email: `doctor${i + 1}@demo.com`,
+      password: "Doctor@123",
+      role: "doctor"
+    }))
+  );
 
-  const patients = await Patient.create([
-    {
-      userId: patientUsers[0]._id,
-      age: 29,
-      gender: "female",
-      contact: "9999990001",
-      medicalDetails: { bloodGroup: "O+", allergies: "Dust", conditions: "None", notes: "Prefers morning appointments." }
-    },
-    {
-      userId: patientUsers[1]._id,
-      age: 34,
-      gender: "male",
-      contact: "9999990002",
-      medicalDetails: { bloodGroup: "A+", allergies: "Penicillin", conditions: "Hypertension", notes: "BP monitoring ongoing." }
-    },
-    {
-      userId: patientUsers[2]._id,
-      age: 26,
-      gender: "female",
-      contact: "9999990003",
-      medicalDetails: { bloodGroup: "B+", allergies: "Pollen", conditions: "Eczema", notes: "Skin flare-ups in summer." }
-    },
-    {
-      userId: patientUsers[3]._id,
-      age: 41,
-      gender: "male",
-      contact: "9999990004",
-      medicalDetails: { bloodGroup: "AB+", allergies: "None", conditions: "Diabetes", notes: "Diet and exercise plan." }
-    },
-    {
-      userId: patientUsers[4]._id,
-      age: 31,
-      gender: "female",
-      contact: "9999990005",
-      medicalDetails: { bloodGroup: "O-", allergies: "Seafood", conditions: "Asthma", notes: "Carries inhaler." }
-    }
-  ]);
+  const doctors = await Doctor.create(
+    doctorUsers.map((user, i) => ({
+      userId: user._id,
+      specialization: specializations[i],
+      experience: Math.floor(Math.random() * 20) + 3,
+      availableSlots: availableSlots[i]
+    }))
+  );
 
+  console.log("Creating 20 patient users and profiles...");
+  const patientUsers = await User.create(
+    Array.from({ length: 20 }, (_, i) => ({
+      name: `${patientFirstNames[i]} ${patientLastNames[i]}`,
+      email: `patient${i + 1}@demo.com`,
+      password: "Patient@123",
+      role: "patient"
+    }))
+  );
+
+  const patients = await Patient.create(
+    patientUsers.map((user, i) => ({
+      userId: user._id,
+      age: Math.floor(Math.random() * 50) + 18,
+      gender: Math.random() > 0.5 ? "male" : "female",
+      contact: `999999${String(i + 1).padStart(4, "0")}`,
+      medicalDetails: {
+        bloodGroup: bloodGroups[Math.floor(Math.random() * bloodGroups.length)],
+        allergies: allergies[Math.floor(Math.random() * allergies.length)],
+        conditions: conditions[Math.floor(Math.random() * conditions.length)],
+        notes: "Patient registered in the system."
+      }
+    }))
+  );
+
+  console.log("Creating sample appointments...");
   const appointments = await Appointment.create([
-    // Completed appointments (with notes + prescriptions)
-    { patientId: patients[0]._id, doctorId: doctors[2]._id, date: daysFromNow(-10), status: "completed" },
-    { patientId: patients[1]._id, doctorId: doctors[0]._id, date: daysFromNow(-7), status: "completed" },
-    { patientId: patients[2]._id, doctorId: doctors[1]._id, date: daysFromNow(-5), status: "completed" },
-    // Upcoming booked
-    { patientId: patients[3]._id, doctorId: doctors[2]._id, date: daysFromNow(2), status: "booked" },
-    { patientId: patients[4]._id, doctorId: doctors[0]._id, date: daysFromNow(4), status: "booked" }
+    // Completed appointments
+    ...Array.from({ length: 15 }, (_, i) => ({
+      patientId: patients[i % 20]._id,
+      doctorId: doctors[i % 10]._id,
+      date: daysFromNow(Math.floor(Math.random() * -20) - 1),
+      status: "completed"
+    })),
+    // Upcoming appointments
+    ...Array.from({ length: 15 }, (_, i) => ({
+      patientId: patients[(i + 5) % 20]._id,
+      doctorId: doctors[(i + 2) % 10]._id,
+      date: daysFromNow(Math.floor(Math.random() * 20) + 1),
+      status: "booked"
+    }))
   ]);
 
-  const notes = await ConsultationNote.create([
-    {
-      appointmentId: appointments[0]._id,
-      diagnosis: "Viral fever",
-      notes: "Rest, hydration, monitor temperature. Return if symptoms worsen."
-    },
-    {
-      appointmentId: appointments[1]._id,
-      diagnosis: "Mild hypertension",
-      notes: "Lifestyle changes advised; monitor BP twice daily for 2 weeks."
-    },
-    {
-      appointmentId: appointments[2]._id,
-      diagnosis: "Allergic dermatitis",
-      notes: "Avoid suspected allergens. Use moisturizers; follow treatment plan."
-    }
-  ]);
+  console.log("Creating consultation notes...");
+  const diagnoses = [
+    "Viral fever",
+    "Mild hypertension",
+    "Allergic dermatitis",
+    "Common cold",
+    "Migraine",
+    "Anxiety disorder",
+    "Skin allergy",
+    "Respiratory infection",
+    "Gastroenteritis",
+    "Muscle strain"
+  ];
 
-  await Prescription.create([
-    {
-      noteId: notes[0]._id,
-      medicineName: "Paracetamol",
-      dosage: "500mg",
-      duration: "3 days",
-      instructions: "After food, twice daily if fever persists"
-    },
-    {
-      noteId: notes[1]._id,
-      medicineName: "Amlodipine",
-      dosage: "5mg",
-      duration: "30 days",
-      instructions: "Once daily, same time each day"
-    },
-    {
-      noteId: notes[2]._id,
-      medicineName: "Cetirizine",
-      dosage: "10mg",
-      duration: "7 days",
-      instructions: "Once at night"
-    }
-  ]);
+  const notes = await ConsultationNote.create(
+    appointments.slice(0, 15).map((appointment, i) => ({
+      appointmentId: appointment._id,
+      diagnosis: diagnoses[i % diagnoses.length],
+      notes: "Patient reviewed and advised appropriate treatment. Follow-up recommended if symptoms persist."
+    }))
+  );
 
-  await FollowUp.create([
-    {
-      appointmentId: appointments[1]._id,
-      recommendedDate: daysFromNow(14),
-      notes: "Review BP log and adjust treatment if needed."
-    }
-  ]);
+  console.log("Creating prescriptions...");
+  const medicines = [
+    { name: "Paracetamol", dosage: "500mg", duration: "3 days" },
+    { name: "Amlodipine", dosage: "5mg", duration: "30 days" },
+    { name: "Cetirizine", dosage: "10mg", duration: "7 days" },
+    { name: "Ibuprofen", dosage: "400mg", duration: "5 days" },
+    { name: "Amoxicillin", dosage: "500mg", duration: "7 days" },
+    { name: "Loratadine", dosage: "10mg", duration: "14 days" },
+    { name: "Omeprazole", dosage: "20mg", duration: "30 days" },
+    { name: "Vitamin D", dosage: "1000IU", duration: "90 days" }
+  ];
 
-  // eslint-disable-next-line no-console
-  console.log("Seed completed.");
-  // eslint-disable-next-line no-console
-  console.log("Demo credentials:");
-  // eslint-disable-next-line no-console
-  console.log("- Admin: admin@demo.com / Admin@123");
-  // eslint-disable-next-line no-console
-  console.log("- Doctor: asha.rao@demo.com / Doctor@123");
-  // eslint-disable-next-line no-console
-  console.log("- Patient: ananya@demo.com / Patient@123");
-  // eslint-disable-next-line no-console
-  console.log(`Admin user id: ${admin._id}`);
+  await Prescription.create(
+    notes.map((note, i) => {
+      const medicine = medicines[i % medicines.length];
+      return {
+        noteId: note._id,
+        medicineName: medicine.name,
+        dosage: medicine.dosage,
+        duration: medicine.duration,
+        instructions: "As directed by doctor. Take with food if needed."
+      };
+    })
+  );
+
+  console.log("Creating follow-ups...");
+  await FollowUp.create(
+    appointments.slice(0, 8).map((appointment, i) => ({
+      appointmentId: appointment._id,
+      recommendedDate: daysFromNow(14 + i * 7),
+      notes: "Review patient progress and adjust treatment if needed.",
+      status: "pending"
+    }))
+  );
+
+  // Print summary
+  console.log("\n");
+  console.log("═".repeat(60));
+  console.log("✅ SEED DATA CREATED SUCCESSFULLY");
+  console.log("═".repeat(60));
+  console.log("\n📊 SUMMARY:");
+  console.log(`   • Admins: 2`);
+  console.log(`   • Doctors: 10`);
+  console.log(`   • Patients: 20`);
+  console.log(`   • Appointments: 30`);
+  console.log(`   • Consultation Notes: 15`);
+  console.log(`   • Prescriptions: 15`);
+  console.log(`   • Follow-ups: 8`);
+  console.log("\n🔐 ADMIN CREDENTIALS:");
+  console.log("   • Email: admin@demo.com");
+  console.log("   • Password: Admin@123");
+  console.log("   • Email: admin2@demo.com");
+  console.log("   • Password: Admin@123");
+  console.log("\n👨‍⚕️ DOCTOR CREDENTIALS (Examples):");
+  console.log("   • Email: doctor1@demo.com");
+  console.log("   • Password: Doctor@123");
+  console.log("   • Email: doctor5@demo.com");
+  console.log("   • Password: Doctor@123");
+  console.log("\n👤 PATIENT CREDENTIALS (Examples):");
+  console.log("   • Email: patient1@demo.com");
+  console.log("   • Password: Patient@123");
+  console.log("   • Email: patient10@demo.com");
+  console.log("   • Password: Patient@123");
+  console.log("\n" + "═".repeat(60) + "\n");
 }
 
 seed()
@@ -191,9 +266,7 @@ seed()
     process.exit(0);
   })
   .catch(async (err) => {
-    // eslint-disable-next-line no-console
-    console.error(err);
+    console.error("❌ Seed Error:", err);
     await mongoose.disconnect();
     process.exit(1);
   });
-

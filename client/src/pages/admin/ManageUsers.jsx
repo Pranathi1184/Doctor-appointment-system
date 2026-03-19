@@ -13,6 +13,7 @@ export default function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [editUser, setEditUser] = useState(null);
+  const [editDoctor, setEditDoctor] = useState(null);
   const [saving, setSaving] = useState(false);
   const [createAdmin, setCreateAdmin] = useState({ name: "", email: "", password: "" });
 
@@ -44,8 +45,23 @@ export default function ManageUsers() {
     }
   };
 
-  const openEdit = (u) => {
+  const openEdit = async (u) => {
     setEditUser({ ...u });
+    
+    if (u.role === "doctor") {
+      try {
+        const { data } = await api.get(`/admin/doctors`);
+        const doctorData = data.doctors.find(d => d.userId._id === u._id || d.userId === u._id);
+        if (doctorData) {
+          setEditDoctor({ ...doctorData });
+        }
+      } catch (err) {
+        console.error("Failed to fetch doctor details", err);
+        toast.error("Failed to load doctor details");
+      }
+    } else {
+      setEditDoctor(null);
+    }
   };
 
   const saveEdit = async () => {
@@ -54,14 +70,35 @@ export default function ManageUsers() {
       toast.error("Name and email are required.");
       return;
     }
+    
+    if (editUser.role === "doctor" && editDoctor) {
+      if (!editDoctor.specialization?.trim() || editDoctor.experience === undefined) {
+        toast.error("Specialization and experience are required for doctors.");
+        return;
+      }
+    }
+    
     try {
       setSaving(true);
+      
       await api.put(`/admin/users/${editUser._id}`, {
         name: editUser.name,
         email: editUser.email
       });
+      
+      if (editUser.role === "doctor" && editDoctor) {
+        await api.put(`/admin/doctors/${editDoctor._id}`, {
+          name: editUser.name,
+          email: editUser.email,
+          specialization: editDoctor.specialization,
+          experience: editDoctor.experience,
+          availableSlots: editDoctor.availableSlots
+        });
+      }
+      
       toast.success("User updated.");
       setEditUser(null);
+      setEditDoctor(null);
       await load();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to update user");
@@ -228,6 +265,7 @@ export default function ManageUsers() {
           <div className="text-muted">Select a user to edit.</div>
         ) : (
           <div className="row g-3">
+            {/* Common fields for all users */}
             <div className="col-md-6">
               <label className="form-label">Name</label>
               <input
@@ -247,10 +285,50 @@ export default function ManageUsers() {
                 disabled={saving}
               />
             </div>
+
+            {/* Doctor-specific fields */}
+            {editUser.role === "doctor" && editDoctor && (
+              <>
+                <div className="col-md-6">
+                  <label className="form-label">Specialization</label>
+                  <input
+                    className="form-control"
+                    value={editDoctor.specialization || ""}
+                    onChange={(e) => setEditDoctor((d) => ({ ...d, specialization: e.target.value }))}
+                    disabled={saving}
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label">Experience (years)</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={editDoctor.experience || 0}
+                    onChange={(e) => setEditDoctor((d) => ({ ...d, experience: parseInt(e.target.value) }))}
+                    disabled={saving}
+                    min="0"
+                  />
+                </div>
+                <div className="col-12">
+                  <label className="form-label">Available Slots (comma-separated)</label>
+                  <input
+                    className="form-control"
+                    value={(editDoctor.availableSlots || []).join(", ")}
+                    onChange={(e) =>
+                      setEditDoctor((d) => ({
+                        ...d,
+                        availableSlots: e.target.value.split(",").map((s) => s.trim()).filter(Boolean)
+                      }))
+                    }
+                    disabled={saving}
+                    placeholder="e.g., 09:00, 10:30, 14:00"
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
       </Modal>
     </>
   );
 }
-
