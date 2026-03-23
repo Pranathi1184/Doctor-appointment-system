@@ -2,40 +2,7 @@ import Appointment from "../models/Appointment.js";
 import Doctor from "../models/Doctor.js";
 import Patient from "../models/Patient.js";
 import DoctorBlock from "../models/DoctorBlock.js";
-
-const DAY_ALIASES = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-
-function timeToMinutes(hhmm) {
-  const [h, m] = String(hhmm).split(":").map((x) => Number(x));
-  if (Number.isNaN(h) || Number.isNaN(m)) return null;
-  return h * 60 + m;
-}
-
-function parseSlot(slot) {
-  // Expected formats like: "Mon 10:00-12:00"
-  const raw = String(slot || "").trim();
-  const [dayPart, timePart] = raw.split(/\s+/, 2);
-  if (!dayPart || !timePart) return null;
-
-  const day = dayPart.slice(0, 3).toLowerCase();
-  const [startStr, endStr] = timePart.split("-");
-  const start = timeToMinutes(startStr);
-  const end = timeToMinutes(endStr);
-  if (!DAY_ALIASES.includes(day) || start === null || end === null || end <= start) return null;
-
-  return { day, start, end, label: raw };
-}
-
-function isWithinDoctorSlots(dateObj, availableSlots = []) {
-  const day = DAY_ALIASES[dateObj.getDay()];
-  const mins = dateObj.getHours() * 60 + dateObj.getMinutes();
-
-  const parsed = availableSlots.map(parseSlot).filter(Boolean);
-  const todays = parsed.filter((s) => s.day === day);
-
-  const ok = todays.some((s) => mins >= s.start && mins < s.end);
-  return { ok, parsedSlots: parsed };
-}
+import { isWithinDoctorSlots } from "../utils/schedule.js";
 
 function startOfDay(dateObj) {
   const d = new Date(dateObj);
@@ -68,6 +35,9 @@ export async function createAppointment(req, res) {
 
   const doctor = await Doctor.findById(doctorId);
   if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+  if (doctor.isActive === false) {
+    return res.status(400).json({ message: "This doctor is no longer available. Please choose another doctor." });
+  }
 
   const appointmentDate = new Date(date);
   if (Number.isNaN(appointmentDate.getTime())) {
@@ -146,6 +116,9 @@ export async function rescheduleAppointment(req, res) {
 
   const doctor = await Doctor.findById(appointment.doctorId);
   if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+  if (doctor.isActive === false) {
+    return res.status(400).json({ message: "This doctor is no longer available. Please choose another doctor." });
+  }
 
   const newDate = new Date(date);
   if (Number.isNaN(newDate.getTime())) return res.status(400).json({ message: "Invalid date" });

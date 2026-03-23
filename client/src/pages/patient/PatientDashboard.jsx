@@ -12,21 +12,24 @@ export default function PatientDashboard() {
   const [appointments, setAppointments] = useState([]);
   const [doctorsCount, setDoctorsCount] = useState(0);
   const [reminders, setReminders] = useState({ overdue: [], upcoming: [] });
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
         setLoading(true);
-        const [aRes, dRes, rRes] = await Promise.all([
+        const [aRes, dRes, rRes, nRes] = await Promise.all([
           api.get("/appointments/patient"),
           api.get("/doctors"),
-          api.get("/followups/me/reminders")
+          api.get("/followups/me/reminders"),
+          api.get("/notifications/me")
         ]);
         if (!mounted) return;
         setAppointments(aRes.data.appointments || []);
         setDoctorsCount((dRes.data.doctors || []).length);
         setReminders({ overdue: rRes.data.overdue || [], upcoming: rRes.data.upcoming || [] });
+        setNotifications(nRes.data.notifications || []);
       } catch (err) {
         toast.error(err?.response?.data?.message || "Failed to load dashboard");
       } finally {
@@ -53,6 +56,19 @@ export default function PatientDashboard() {
 
   return (
     <div className="row g-3">
+      {notifications.length > 0 ? (
+        <div className="col-12">
+          <Card title="Notifications" subtitle="Important updates related to your care" accent="blue">
+            <div className="d-flex flex-column gap-2">
+              {notifications.slice(0, 3).map((notification) => (
+                <div key={notification._id} className="alert alert-warning mb-0">
+                  {notification.message}
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      ) : null}
       <div className="col-md-4">
         <Card
           title={
@@ -152,8 +168,11 @@ export default function PatientDashboard() {
                   {[...reminders.overdue, ...reminders.upcoming].slice(0, 8).map((f) => {
                     const doctor = f.appointmentId?.doctorId;
                     const docName = doctor?.userId?.name || "Doctor";
-                    const dateOnly = formatDateOnly(f.recommendedDate);
+                    const dateOnly = formatDateOnly(f.suggestedDate || f.recommendedDate);
                     const status = reminders.overdue.some((o) => o._id === f._id) ? "overdue" : "upcoming";
+                    const doctorAvailable = Boolean(
+                      doctor?._id && doctor?.isActive !== false && doctor?.userId?.isActive !== false
+                    );
                     return (
                       <tr key={f._id}>
                         <td>
@@ -166,9 +185,9 @@ export default function PatientDashboard() {
                             {status}
                           </span>
                         </td>
-                        <td className="text-muted">{f.notes}</td>
+                        <td className="text-muted">{[f.notes, f.systemNote].filter(Boolean).join(" ")}</td>
                         <td className="text-end">
-                          {doctor?._id ? (
+                          {doctorAvailable ? (
                             <Link
                               className="btn btn-sm btn-primary"
                               to={`/patient/book?doctorId=${doctor._id}&date=${dateOnly}`}
@@ -176,7 +195,7 @@ export default function PatientDashboard() {
                               Book follow-up
                             </Link>
                           ) : (
-                            <span className="text-muted small">-</span>
+                            <span className="text-muted small">Doctor unavailable</span>
                           )}
                         </td>
                       </tr>

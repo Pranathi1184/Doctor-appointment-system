@@ -54,7 +54,16 @@ export default function Prescriptions() {
 
   const fuColumns = [
     { key: "recommendedDate", header: "Recommended date", render: (r) => fmtDateTime(r.recommendedDate) },
-    { key: "notes", header: "Notes" }
+    {
+      key: "notes",
+      header: "Notes",
+      render: (r) => [r.notes, r.systemNote].filter(Boolean).join(" ")
+    },
+    {
+      key: "suggestedDate",
+      header: "Suggested booking time",
+      render: (r) => (r.suggestedDate ? fmtDateTime(r.suggestedDate) : "-")
+    }
   ];
 
   return (

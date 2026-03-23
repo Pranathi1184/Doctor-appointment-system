@@ -32,6 +32,7 @@ export async function login(req, res) {
 
   const user = await User.findOne({ email: email.toLowerCase() });
   if (!user) return res.status(401).json({ message: "Invalid credentials" });
+  if (user.isActive === false) return res.status(403).json({ message: "This account is no longer active." });
 
   const ok = await user.matchPassword(password);
   if (!ok) return res.status(401).json({ message: "Invalid credentials" });

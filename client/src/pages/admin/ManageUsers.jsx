@@ -37,7 +37,7 @@ export default function ManageUsers() {
     if (!selectedUser) return;
     try {
       await api.delete(`/admin/users/${selectedUser._id}`);
-      toast.success("User deleted.");
+      toast.success(selectedUser.role === "doctor" ? "Doctor removed from availability and notifications sent." : "User deleted.");
       setSelectedUser(null);
       await load();
     } catch (err) {
@@ -238,6 +238,9 @@ export default function ManageUsers() {
           selectedUser ? (
             <div>
               Are you sure you want to delete <b>{selectedUser.name}</b> ({selectedUser.email})?
+              {selectedUser.role === "doctor"
+                ? " This will remove the doctor from availability and notify doctors and affected patients."
+                : ""}
             </div>
           ) : (
             "Are you sure?"

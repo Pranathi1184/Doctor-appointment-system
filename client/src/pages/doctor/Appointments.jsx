@@ -134,8 +134,8 @@ export default function DoctorAppointments() {
     }
     try {
       setSaving(true);
-      await api.post("/followups", { appointmentId: selected._id, ...fuForm });
-      toast.success("Follow-up added.");
+      const { data } = await api.post("/followups", { appointmentId: selected._id, ...fuForm });
+      toast.success(data.message || "Follow-up added.");
       setMode(null);
       setSelected(null);
     } catch (err) {
@@ -295,6 +295,10 @@ export default function DoctorAppointments() {
                   onChange={(e) => setFuForm((f) => ({ ...f, notes: e.target.value }))}
                   disabled={saving}
                 />
+              </div>
+              <div className="small text-muted mb-3">
+                If this date falls outside your configured slots, the patient will be told to book at the next
+                available timing.
               </div>
               <button className="btn btn-secondary w-100" disabled={saving} type="submit">
                 {saving ? "Saving..." : "Add Follow-up"}

@@ -2,6 +2,7 @@ import express from "express";
 import {
   createDoctor,
   createUser,
+  deleteDoctor,
   deleteUser,
   getAllAppointments,
   getDoctors,
@@ -24,6 +25,7 @@ router.delete("/users/:id", asyncHandler(deleteUser));
 router.get("/doctors", asyncHandler(getDoctors));
 router.post("/doctors", asyncHandler(createDoctor));
 router.put("/doctors/:id", asyncHandler(updateDoctor));
+router.delete("/doctors/:id", asyncHandler(deleteDoctor));
 
 router.get("/appointments", asyncHandler(getAllAppointments));
 

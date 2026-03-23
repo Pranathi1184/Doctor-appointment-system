@@ -49,6 +49,38 @@ function buildTimeOptionsForDay(availableSlots, dayAlias, stepMinutes = 30) {
   return Array.from(new Set(options)).sort();
 }
 
+function findNearestAvailableSlot(availableSlots, dateOnly, preferredTime = "", lookAheadDays = 45) {
+  if (!dateOnly) return null;
+
+  const baseDate = new Date(`${dateOnly}T${preferredTime || "00:00"}`);
+  if (Number.isNaN(baseDate.getTime())) return null;
+
+  const preferredMinutes = preferredTime ? timeToMinutes(preferredTime) : 0;
+
+  for (let offset = 0; offset <= lookAheadDays; offset += 1) {
+    const candidate = new Date(baseDate);
+    candidate.setDate(baseDate.getDate() + offset);
+
+    const dayAlias = DAY_ALIASES[candidate.getDay()];
+    const options = buildTimeOptionsForDay(availableSlots, dayAlias, 30);
+    if (options.length === 0) continue;
+
+    const timeOnly =
+      offset === 0 && preferredTime
+        ? options.find((time) => timeToMinutes(time) >= preferredMinutes) || null
+        : options[0];
+
+    if (!timeOnly) continue;
+
+    return {
+      dateOnly: `${candidate.getFullYear()}-${pad2(candidate.getMonth() + 1)}-${pad2(candidate.getDate())}`,
+      timeOnly
+    };
+  }
+
+  return null;
+}
+
 function useQuery() {
   const { search } = useLocation();
   return useMemo(() => new URLSearchParams(search), [search]);
@@ -78,6 +110,12 @@ export default function BookAppointment() {
     const dayAlias = DAY_ALIASES[d.getDay()];
     return buildTimeOptionsForDay(selectedDoctor.availableSlots, dayAlias, 30);
   }, [selectedDoctor, form.dateOnly]);
+
+  const nearestAvailable = useMemo(() => {
+    if (!selectedDoctor || !form.dateOnly) return null;
+    if (timeOptions.length > 0) return null;
+    return findNearestAvailableSlot(selectedDoctor.availableSlots, form.dateOnly, form.timeOnly || "00:00");
+  }, [selectedDoctor, form.dateOnly, form.timeOnly, timeOptions]);
 
   useEffect(() => {
     // If date/doctor is prefilled (or changed), auto-pick the first available time
@@ -218,8 +256,23 @@ export default function BookAppointment() {
                 </select>
                 {errors.timeOnly ? <div className="invalid-feedback">{errors.timeOnly}</div> : null}
                 {selectedDoctor && form.dateOnly && timeOptions.length === 0 ? (
-                  <div className="small text-muted mt-1">
-                    No slots match this day. Try another date or doctor.
+                  <div className="mt-1">
+                    <div className="small text-muted">
+                      No slots match this day. Try another date or doctor.
+                    </div>
+                    {nearestAvailable ? (
+                      <div className="small text-primary mt-1">
+                        Nearest available: {nearestAvailable.dateOnly} at {nearestAvailable.timeOnly}.
+                        <button
+                          type="button"
+                          className="btn btn-link btn-sm p-0 ms-1 align-baseline"
+                          onClick={() => setForm((f) => ({ ...f, ...nearestAvailable }))}
+                          disabled={saving}
+                        >
+                          Use this slot
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
               </div>

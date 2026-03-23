@@ -10,6 +10,7 @@ export async function protect(req, res, next) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id).select("-password");
     if (!user) return res.status(401).json({ message: "Not authorized" });
+    if (user.isActive === false) return res.status(401).json({ message: "This account is no longer active." });
 
     req.user = user;
     next();

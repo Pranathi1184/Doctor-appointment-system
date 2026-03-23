@@ -3,15 +3,17 @@ import { toast } from "react-toastify";
 import Card from "../../components/Card";
 import DataTable from "../../components/DataTable";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import ConfirmModal from "../../components/ConfirmModal";
 import api from "../../services/api";
 import Modal from "../../components/Modal";
-import { IconEdit, IconUsers } from "../../components/Icons";
+import { IconEdit, IconTrash, IconUsers } from "../../components/Icons";
 
 export default function ManageDoctors() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [doctors, setDoctors] = useState([]);
   const [editDoctor, setEditDoctor] = useState(null);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -66,14 +68,14 @@ export default function ManageDoctors() {
     }
   };
 
-  const openEdit = (d) => {
+  const openEdit = (doctor) => {
     setEditDoctor({
-      _id: d._id,
-      name: d.userId?.name || "",
-      email: d.userId?.email || "",
-      specialization: d.specialization || "",
-      experience: d.experience ?? "",
-      availableSlots: (d.availableSlots || []).join(", ")
+      _id: doctor._id,
+      name: doctor.userId?.name || "",
+      email: doctor.userId?.email || "",
+      specialization: doctor.specialization || "",
+      experience: doctor.experience ?? "",
+      availableSlots: (doctor.availableSlots || []).join(", ")
     });
   };
 
@@ -105,32 +107,69 @@ export default function ManageDoctors() {
     }
   };
 
+  const deleteDoctor = async () => {
+    if (!selectedDoctor) return;
+    try {
+      setSaving(true);
+      await api.delete(`/admin/doctors/${selectedDoctor._id}`);
+      toast.success("Doctor removed from availability and notifications sent.");
+      setSelectedDoctor(null);
+      await load();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to remove doctor");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const columns = [
-    { key: "name", header: "Name", render: (r) => r.userId?.name || "-" },
-    { key: "email", header: "Email", render: (r) => r.userId?.email || "-" },
+    { key: "name", header: "Name", render: (row) => row.userId?.name || "-" },
+    { key: "email", header: "Email", render: (row) => row.userId?.email || "-" },
     { key: "specialization", header: "Specialization" },
-    { key: "experience", header: "Experience (yrs)", render: (r) => r.experience },
+    { key: "experience", header: "Experience (yrs)", render: (row) => row.experience },
+    {
+      key: "status",
+      header: "Status",
+      render: (row) => (
+        <span className={`badge ${row.isActive === false ? "text-bg-secondary" : "text-bg-success"}`}>
+          {row.isActive === false ? "Inactive" : "Active"}
+        </span>
+      )
+    },
     {
       key: "slots",
       header: "Slots",
-      render: (r) => (r.availableSlots || []).slice(0, 2).join(" · ") || "-"
+      render: (row) => (row.availableSlots || []).slice(0, 2).join(" | ") || "-"
     },
     {
       key: "actions",
       header: "Actions",
       className: "text-end",
-      render: (r) => (
-        <button
-          className="btn btn-outline-primary btn-sm"
-          data-bs-toggle="modal"
-          data-bs-target="#editDoctorModal"
-          onClick={() => openEdit(r)}
-          disabled={saving}
-        >
-          <span className="d-inline-flex align-items-center gap-1">
-            <IconEdit size={16} /> Edit
-          </span>
-        </button>
+      render: (row) => (
+        <div className="d-flex justify-content-end gap-2">
+          <button
+            className="btn btn-outline-primary btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#editDoctorModal"
+            onClick={() => openEdit(row)}
+            disabled={saving || row.isActive === false}
+          >
+            <span className="d-inline-flex align-items-center gap-1">
+              <IconEdit size={16} /> Edit
+            </span>
+          </button>
+          <button
+            className="btn btn-outline-danger btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#confirmDeleteDoctor"
+            onClick={() => setSelectedDoctor(row)}
+            disabled={saving || row.isActive === false}
+          >
+            <span className="d-inline-flex align-items-center gap-1">
+              <IconTrash size={16} /> Delete
+            </span>
+          </button>
+        </div>
       )
     }
   ];
@@ -149,7 +188,7 @@ export default function ManageDoctors() {
             </span>
           }
         >
-          <DataTable columns={columns} rows={doctors.map((d) => ({ ...d, id: d._id }))} />
+          <DataTable columns={columns} rows={doctors.map((doctor) => ({ ...doctor, id: doctor._id }))} />
         </Card>
       </div>
       <div className="col-lg-5">
@@ -164,7 +203,7 @@ export default function ManageDoctors() {
                   <input
                     className="form-control"
                     value={form.name}
-                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    onChange={(e) => setForm((current) => ({ ...current, name: e.target.value }))}
                     disabled={saving}
                   />
                 </div>
@@ -178,7 +217,7 @@ export default function ManageDoctors() {
                     type="number"
                     className="form-control"
                     value={form.experience}
-                    onChange={(e) => setForm((f) => ({ ...f, experience: e.target.value }))}
+                    onChange={(e) => setForm((current) => ({ ...current, experience: e.target.value }))}
                     disabled={saving}
                   />
                 </div>
@@ -193,7 +232,7 @@ export default function ManageDoctors() {
                 type="email"
                 className="form-control"
                 value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                onChange={(e) => setForm((current) => ({ ...current, email: e.target.value }))}
                 disabled={saving}
               />
             </div>
@@ -205,7 +244,7 @@ export default function ManageDoctors() {
                 type="password"
                 className="form-control"
                 value={form.password}
-                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                onChange={(e) => setForm((current) => ({ ...current, password: e.target.value }))}
                 disabled={saving}
               />
             </div>
@@ -216,7 +255,7 @@ export default function ManageDoctors() {
               <input
                 className="form-control"
                 value={form.specialization}
-                onChange={(e) => setForm((f) => ({ ...f, specialization: e.target.value }))}
+                onChange={(e) => setForm((current) => ({ ...current, specialization: e.target.value }))}
                 disabled={saving}
                 placeholder="e.g. Cardiologist"
               />
@@ -226,7 +265,7 @@ export default function ManageDoctors() {
               <input
                 className="form-control"
                 value={form.availableSlots}
-                onChange={(e) => setForm((f) => ({ ...f, availableSlots: e.target.value }))}
+                onChange={(e) => setForm((current) => ({ ...current, availableSlots: e.target.value }))}
                 disabled={saving}
                 placeholder="Mon 10:00-12:00, Wed 14:00-16:00"
               />
@@ -261,7 +300,7 @@ export default function ManageDoctors() {
               <input
                 className="form-control"
                 value={editDoctor.name}
-                onChange={(e) => setEditDoctor((d) => ({ ...d, name: e.target.value }))}
+                onChange={(e) => setEditDoctor((current) => ({ ...current, name: e.target.value }))}
                 disabled={saving}
               />
             </div>
@@ -271,7 +310,7 @@ export default function ManageDoctors() {
                 type="email"
                 className="form-control"
                 value={editDoctor.email}
-                onChange={(e) => setEditDoctor((d) => ({ ...d, email: e.target.value }))}
+                onChange={(e) => setEditDoctor((current) => ({ ...current, email: e.target.value }))}
                 disabled={saving}
               />
             </div>
@@ -280,7 +319,7 @@ export default function ManageDoctors() {
               <input
                 className="form-control"
                 value={editDoctor.specialization}
-                onChange={(e) => setEditDoctor((d) => ({ ...d, specialization: e.target.value }))}
+                onChange={(e) => setEditDoctor((current) => ({ ...current, specialization: e.target.value }))}
                 disabled={saving}
               />
             </div>
@@ -290,7 +329,7 @@ export default function ManageDoctors() {
                 type="number"
                 className="form-control"
                 value={editDoctor.experience}
-                onChange={(e) => setEditDoctor((d) => ({ ...d, experience: e.target.value }))}
+                onChange={(e) => setEditDoctor((current) => ({ ...current, experience: e.target.value }))}
                 disabled={saving}
               />
             </div>
@@ -299,14 +338,30 @@ export default function ManageDoctors() {
               <input
                 className="form-control"
                 value={editDoctor.availableSlots}
-                onChange={(e) => setEditDoctor((d) => ({ ...d, availableSlots: e.target.value }))}
+                onChange={(e) => setEditDoctor((current) => ({ ...current, availableSlots: e.target.value }))}
                 disabled={saving}
               />
             </div>
           </div>
         )}
       </Modal>
+
+      <ConfirmModal
+        id="confirmDeleteDoctor"
+        title="Delete doctor"
+        body={
+          selectedDoctor ? (
+            <div>
+              {selectedDoctor.userId?.name} will no longer be available for booking. Doctors and affected patients
+              will be notified to look for another doctor.
+            </div>
+          ) : (
+            "Are you sure?"
+          )
+        }
+        confirmText="Delete"
+        onConfirm={deleteDoctor}
+      />
     </div>
   );
 }
-

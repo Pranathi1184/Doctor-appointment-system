@@ -12,6 +12,7 @@ import followUpRoutes from "./routes/followUpRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import doctorBlockRoutes from "./routes/doctorBlockRoutes.js";
 import patientRoutes from "./routes/patientRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 
 dotenv.config();
@@ -38,6 +39,7 @@ app.use("/api/followups", followUpRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/doctor/blocks", doctorBlockRoutes);
 app.use("/api/patients", patientRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
